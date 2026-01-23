@@ -1,0 +1,22 @@
+
+# 가상환경 폴더 제외
+EY/
+venv/
+.venv/
+
+# 파이썬 캐시 파일 제외
+**/__pycache__/
+*.pyc
+
+# 맥 시스템 파일 제외
+.DS_Store
+
+HydroRIVERS_v10_af.dbf
+HydroRIVERS_v10_af.shp
+
+echo "*.dbf" >> .gitignore
+echo "*.shp" >> .gitignore
+echo "*.prj" >> .gitignore
+echo "*.sbn" >> .gitignore
+echo "*.shx" >> .gitignore
+echo "*.sbx" >> .gitignore

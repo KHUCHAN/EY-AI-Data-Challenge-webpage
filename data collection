@@ -1,0 +1,35 @@
+import osmnx as ox
+import pandas as pd
+
+# 1. 데이터 범위 파악
+df_train = pd.read_csv('TRAINING_SET.csv').dropna(subset=['Latitude', 'Longitude'])
+df_val = pd.read_csv('VALIDATION_SET.csv').dropna(subset=['Latitude', 'Longitude'])
+all_coords = pd.concat([df_train, df_val])
+
+# 데이터가 퍼져있는 최소/최대 좌표 계산
+north, south = all_coords['Latitude'].max(), all_coords['Latitude'].min()
+east, west = all_coords['Longitude'].max(), all_coords['Longitude'].min()
+
+# 2. 약간의 여유 공간(Padding) 추가 (약 0.1도 = 11km)
+padding = 0.1
+north, south = north + padding, south - padding
+east, west = east + padding, west - padding
+
+print(f"추출 영역: N:{north}, S:{south}, E:{east}, W:{west}")
+
+# 3. 해당 영역의 강만 추출
+# place_name 대신 bbox(위경도 박스)를 사용하여 서버 부하를 줄입니다.
+tags = {'waterway': ['river', 'stream']}
+
+try:
+    print("지정된 영역의 강 데이터를 다운로드 중...")
+    rivers = ox.features_from_bbox(north, south, east, west, tags=tags)
+    
+    # 라인 데이터만 남기기
+    rivers = rivers[rivers.geometry.type.isin(['LineString', 'MultiLineString'])]
+    
+    # 저장
+    rivers.to_file("clipped_rivers.geojson", driver='GeoJSON')
+    print("성공! 'clipped_rivers.geojson' 파일이 생성되었습니다.")
+except Exception as e:
+    print(f"오류 발생: {e}")
